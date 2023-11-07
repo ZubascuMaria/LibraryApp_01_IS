@@ -1,12 +1,8 @@
 package org.example;
 
 import database.JDBConnectionWrapper;
-import model.Book;
-import model.builder.BookBuilder;
-import model.book.BookRepository;
-import model.book.BookRepositoryMySQL;
-
-import java.time.LocalDate;
+import repository.book.BookRepository;
+import repository.book.BookRepositoryMySQL;
 
 public class Main {
     public static void main(String[] args){

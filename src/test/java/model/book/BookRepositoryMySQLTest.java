@@ -4,6 +4,8 @@ import database.JDBConnectionWrapper;
 import model.Book;
 import model.builder.BookBuilder;
 import org.junit.jupiter.api.Test;
+import repository.book.BookRepository;
+import repository.book.BookRepositoryMySQL;
 
 import java.time.LocalDate;
 import java.util.List;
