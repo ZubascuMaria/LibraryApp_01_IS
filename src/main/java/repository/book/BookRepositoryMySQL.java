@@ -78,8 +78,6 @@ public class BookRepositoryMySQL implements BookRepository {
     public boolean save(Book book) {
         String sql = "INSERT INTO book VALUES(null, ?, ?, ?);";
 
-//        String newSql = "INSERT INTO book VALUES(null, \'" + book.getAuthor() +"\', \'"+ book.getTitle()+"\', null );";
-
         try{
 //            Statement statement = connection.createStatement();
 //            statement.executeUpdate(newSql);
