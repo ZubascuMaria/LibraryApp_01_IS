@@ -1,5 +1,7 @@
 package repository.user;
 
+import model.Book;
+import model.Role;
 import model.User;
 import model.builder.UserBuilder;
 import model.validator.Notification;
@@ -10,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import static database.Constants.Tables.USER;
@@ -121,5 +124,88 @@ public class UserRepositoryMySQL implements UserRepository {
                 return false;
             }
     }
+
+    @Override
+    public void deleteUser(Long id) {
+        String sql = "DELETE FROM user WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1,id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public void updateUserEmployee(Long id) {
+        String sql = "UPDATE user_role SET role_id = ? WHERE user_id = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1,2L);
+            preparedStatement.setLong(2, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<User> findAllEmployees() {
+        String sql = "SELECT u.* FROM user u " +
+                "INNER JOIN user_role ur ON u.id = ur.user_id " +
+                "WHERE ur.role_id = 2";
+
+        List<User> users = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()){
+                User user = new UserBuilder()
+                        .setId(resultSet.getLong("id"))
+                        .setUsername(resultSet.getString("username"))
+                        .setPassword(resultSet.getString("password"))
+                        .build();
+               // rightsRolesRepository.addRolesToUser(user, user.getRoles());
+                users.add(user);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return users;
+    }
+
+    @Override
+    public List<User> findAllCustomers() {
+
+        String sql = "SELECT u.* FROM user u " +
+                "INNER JOIN user_role ur ON u.id = ur.user_id " +
+                "WHERE ur.role_id = 3";
+
+        List<User> users = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()){
+                User user = new UserBuilder()
+                        .setId(resultSet.getLong("id"))
+                        .setUsername(resultSet.getString("username"))
+                        .setPassword(resultSet.getString("password"))
+                        .build();
+                //rightsRolesRepository.addRolesToUser(user, user.getRoles());
+                users.add(user);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return users;
+    }
+
 
 }

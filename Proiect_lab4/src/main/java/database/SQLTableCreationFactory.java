@@ -6,7 +6,7 @@ import static database.Constants.Tables.ROLE;
 import static database.Constants.Tables.ROLE_RIGHT;
 import static database.Constants.Tables.USER;
 import static database.Constants.Tables.USER_ROLE;
-import static database.Constants.Tables.DEPOSIT_BOOK;
+import static database.Constants.Tables.BOOK_SOLDS;
 
 public class SQLTableCreationFactory {
 
@@ -17,6 +17,8 @@ public class SQLTableCreationFactory {
                     "  author varchar(500) NOT NULL," +
                     "  title varchar(500) NOT NULL," +
                     "  publishedDate datetime DEFAULT NULL," +
+                    "   stock int NOT NULL," +
+                    "   price int NOT NULL,"+
                     "  PRIMARY KEY (id)," +
                     "  UNIQUE KEY id_UNIQUE (id)" +
                     ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
@@ -75,15 +77,15 @@ public class SQLTableCreationFactory {
                     "    REFERENCES role (id)" +
                     "    ON DELETE CASCADE" +
                     "    ON UPDATE CASCADE);";
-            case DEPOSIT_BOOK -> "  CREATE TABLE IF NOT EXISTS deposit (" +
-                    "  id INT NOT NULL AUTO_INCREMENT," +
-                    "  bid int NOT NULL," +
-                    "  stock int NOT NULL," +
-                    "  price int NOT NULL," +
-                    "  PRIMARY KEY (id)," +
-                    "    FOREIGN KEY (bid)" +
-                    "    REFERENCES book (id)" +
-                    "    ON DELETE CASCADE);";
+            case BOOK_SOLDS -> "CREATE TABLE IF NOT EXISTS book_solds (" +
+                    "id int(11) NOT NULL AUTO_INCREMENT," +
+                    "bookID int(11) NOT NULL," +
+                    "title varchar(500) NOT NULL, " +
+                    "quantity int(11)," +
+                    "PRIMARY KEY (id)," +
+                    "FOREIGN KEY (bookID)" +
+                    "REFERENCES book (id)" +
+                    "ON DELETE CASCADE);";
 
             default -> "";
         };

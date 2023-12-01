@@ -76,17 +76,16 @@ public class BookRepositoryMySQL implements BookRepository {
 
     @Override
     public boolean save(Book book) {
-        String sql = "INSERT INTO book VALUES(null, ?, ?, ?);";
+        String sql = "INSERT INTO book VALUES(null, ?, ?, ?, ?, ?);";
 
         try{
-//            Statement statement = connection.createStatement();
-//            statement.executeUpdate(newSql);
-//            return true;
 
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, book.getAuthor());
             preparedStatement.setString(2, book.getTitle());
             preparedStatement.setDate(3, java.sql.Date.valueOf(book.getPublishedDate()));
+            preparedStatement.setInt(4,book.getStock());
+            preparedStatement.setInt(5,book.getPrice());
 
             int rowsInserted = preparedStatement.executeUpdate();
 
@@ -111,6 +110,33 @@ public class BookRepositoryMySQL implements BookRepository {
         }
     }
 
+    public void updateStock(int newStock, Long id)
+    {
+        String sql = "UPDATE book set stock = ? where id = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1,newStock);
+            preparedStatement.setLong(2,id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public void deleteBook(Long id) {
+        String sql = "DELETE FROM book WHERE id = ?";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1,id);
+
+            preparedStatement.execute();
+
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
 
     private Book getBookFromResultSet(ResultSet resultSet) throws SQLException {
         return new BookBuilder()
@@ -118,6 +144,8 @@ public class BookRepositoryMySQL implements BookRepository {
                 .setAuthor(resultSet.getString("author"))
                 .setTitle(resultSet.getString("title"))
                 .setPublishedDate(new java.sql.Date((resultSet.getDate("publishedDate")).getTime()).toLocalDate())
+                .setStock(resultSet.getInt("stock"))
+                .setPrice(resultSet.getInt("price"))
                 .build();
     }
 }

@@ -16,4 +16,9 @@ public interface UserRepository {
     void removeAll();
 
     boolean existsByUsername(String username);
+
+    void deleteUser(Long id);
+    void updateUserEmployee(Long id);
+    List<User>findAllEmployees();
+    List<User>findAllCustomers();
 }

@@ -1,14 +1,14 @@
 package view;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -16,13 +16,27 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.Book;
+import service.book.BookService;
+
+import java.util.List;
 
 public class CustomerView {
     private Button viewBooks;
     private Button buyBook;
+    private Button buy;
+    private Stage stage;
+    private HBox hBox;
+    private final BookService bookService;
 
-    public CustomerView(Stage primaryStage)
+    private TableView tableView;
+    private ListView listView;
+    private Label buySuccesful;
+
+    public CustomerView(Stage primaryStage, BookService bookService)
     {
+        this.bookService = bookService;
+        this.stage = primaryStage;
         primaryStage.setTitle("Customer");
         GridPane gridPane = new GridPane();
         initializeGridPane(gridPane);
@@ -33,6 +47,7 @@ public class CustomerView {
         initializeSceneTitle(gridPane);
 
         initializeFields(gridPane);
+
 
         primaryStage.show();
     }
@@ -49,8 +64,80 @@ public class CustomerView {
         logInButtonHBox.setAlignment(Pos.BOTTOM_LEFT);
         logInButtonHBox.getChildren().add(buyBook);
         gridPane.add(logInButtonHBox, 0, 4);
+
+        getTable(gridPane);
+        chooseBook(gridPane);
     }
 
+    private void getTable(GridPane gridPane)
+    {
+        List<Book> listBooks = bookService.findAll();
+        ObservableList<Book> books = FXCollections.observableArrayList(listBooks);
+        tableView = new TableView<>();
+        tableView.setItems(books);
+
+        TableColumn<Book, String> authorCol = new TableColumn<>("Author");
+        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+
+        TableColumn<Book, String> titleCol = new TableColumn<>("Title");
+        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+
+        TableColumn<Book, String> publishedDateCol = new TableColumn<>("Published Date");
+        publishedDateCol.setCellValueFactory(new PropertyValueFactory<>("publishedDate"));
+
+        TableColumn<Book, String> priceCol = new TableColumn<>("Price");
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        tableView.getColumns().setAll(authorCol, titleCol, publishedDateCol, priceCol);
+
+        tableView.setVisible(false);
+        gridPane.add(tableView,1,2);
+
+    }
+
+    public void showTable()
+    {
+        this.tableView.setVisible(true);
+    }
+
+    public void unshowTable()
+    {
+        this.tableView.setVisible(false);
+    }
+
+    private void chooseBook(GridPane gridPane)
+    {
+        List<Book> listBooks = bookService.findAll();
+        ObservableList<Book> books = FXCollections.observableArrayList(listBooks);
+        listView = new ListView<Book>(books);
+        listView.setPrefWidth(500);
+        hBox = new HBox(listView);
+        //hBox.setPrefWidth(100);
+        gridPane.add(hBox,1,2);
+        hBox.setVisible(false);
+        buy = new Button("Buy");
+        gridPane.add(buy, 0, 1);
+        buy.setVisible(false);
+        buySuccesful = new Label("Buy with Succes!");
+        buySuccesful.setVisible(false);
+        gridPane.add(buySuccesful, 0, 1);
+    }
+
+    public void showChooseBook()
+    {
+        buy.setVisible(true);
+        hBox.setVisible(true);
+        buyBook.setVisible(false);
+        viewBooks.setVisible(false);
+    }
+    public void buySucces()
+    {
+        buySuccesful.setVisible(true);
+    }
+    public void unshowBuy()
+    {
+        buy.setVisible(false);
+    }
 
     private void initializeSceneTitle(GridPane gridPane) {
         Text sceneTitle = new Text("Hello dear customer!");
@@ -66,6 +153,11 @@ public class CustomerView {
 
 
     }
+
+    public Book getBookfromListView()
+    {
+        return (Book) listView.getSelectionModel().getSelectedItem();
+    }
     public void addViewButtonListener(EventHandler<ActionEvent> viewButtonListener) {
         viewBooks.setOnAction(viewButtonListener);
     }
@@ -73,4 +165,20 @@ public class CustomerView {
     public void addBuyButtonListener(EventHandler<ActionEvent> buyButtonListener) {
         buyBook.setOnAction(buyButtonListener);
     }
+
+    public void buyButtonListener(EventHandler<ActionEvent>buyListener)
+    {
+        buy.setOnAction(buyListener);
+    }
+
+    public void decrementBookStock(Book book)
+    {
+        if(book.getStock() != 0)
+        {bookService.updateStock(book.getStock()-1, book.getId());}
+        else {
+            buySuccesful.setText("Out of Stock :(");
+            buySuccesful.setTextFill(Color.color(1, 0, 0));}
+
+    }
+
 }

@@ -44,8 +44,8 @@ public class Bootstrap {
                     "TRUNCATE `user_role`;",
                     "DROP TABLE `user_role`;",
                     "TRUNCATE `role`;",
-                    "TRUNCATE `deposit`;",
-                    "DROP TABLE `deposit`;",
+                    "TRUNCATE `book_solds`;",
+                    "DROP TABLE `book_solds`;",
                     "DROP TABLE  `book`, `role`, `user`;"
             };
 
@@ -63,7 +63,6 @@ public class Bootstrap {
 
     private static void bootstrapTables() throws SQLException {
         SQLTableCreationFactory sqlTableCreationFactory = new SQLTableCreationFactory();
-        SQLTriggerCreationFactory sqlTriggerCreationFactory = new SQLTriggerCreationFactory();
 
         for (String schema : SCHEMAS) {
             System.out.println("Bootstrapping " + schema + " schema");
@@ -78,8 +77,6 @@ public class Bootstrap {
                 String createTableSQL = sqlTableCreationFactory.getCreateSQLForTable(table);
                 statement.execute(createTableSQL);
             }
-            String trigger = sqlTriggerCreationFactory.getCreateTriggers();
-            statement.execute(trigger);
         }
 
         System.out.println("Done table bootstrap");

@@ -3,26 +3,38 @@ package controller;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
+import model.Role;
 import model.User;
 import model.validator.Notification;
 import model.validator.UserValidator;
+import repository.book.BookRepository;
+import service.book.BookService;
+import service.book.BookServiceImpl;
+import service.bookSold.BookSoldService;
 import service.user.AuthenticationService;
+import view.AdministratorView;
 import view.CustomerView;
+import view.EmployeeView;
 import view.LoginView;
 
 import java.util.EventListener;
 import java.util.List;
 
+import static database.Constants.Roles.*;
+
 public class LoginController {
 
     private final LoginView loginView;
     private final AuthenticationService authenticationService;
+    private final BookService bookService;
+    private final BookSoldService bookSoldService;
 
 
-    public LoginController(LoginView loginView, AuthenticationService authenticationService) {
+    public LoginController(LoginView loginView, AuthenticationService authenticationService, BookService bookService, BookSoldService bookSoldService) {
         this.loginView = loginView;
+        this.bookSoldService = bookSoldService;
         this.authenticationService = authenticationService;
-
+        this.bookService = bookService;
         this.loginView.addLoginButtonListener(new LoginButtonListener());
         this.loginView.addRegisterButtonListener(new RegisterButtonListener());
     }
@@ -40,7 +52,18 @@ public class LoginController {
                 loginView.setActionTargetText(loginNotification.getFormattedErrors());
             }else{
                 loginView.setActionTargetText("LogIn Successfull!");
-                CustomerView customerView = new CustomerView(new Stage());
+                User user = loginNotification.getResult();
+                List<Role> roles = user.getRoles();
+                String role = roles.get(0).getRole();
+                System.out.println(role);
+                switch (role){
+                    case ADMINISTRATOR : AdministratorController administratorController = new AdministratorController(new AdministratorView(loginView.getStage(),authenticationService));
+                                    break;
+                    case EMPLOYEE : EmployeeController employeeController = new EmployeeController(new EmployeeView(loginView.getStage(),bookService));
+                                    break;
+                    case CUSTOMER : CustomerController controller = new CustomerController(new CustomerView(loginView.getStage(),bookService), bookSoldService);
+                                    break;
+                }
             }
 
         }
