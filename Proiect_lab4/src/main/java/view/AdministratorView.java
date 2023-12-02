@@ -19,10 +19,17 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Book;
+import model.EmployeeReport;
 import model.User;
 import model.validator.Notification;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import service.employeeReport.EmployeeReportService;
 import service.user.AuthenticationService;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -40,8 +47,10 @@ public class AdministratorView {
     private TextField usernameField, passField;
     private Button registerButton;
     private final AuthenticationService authenticationService;
+    private final EmployeeReportService employeeReportService;
 
-    public AdministratorView(Stage primaryStage, AuthenticationService authenticationService){
+    public AdministratorView(Stage primaryStage, AuthenticationService authenticationService, EmployeeReportService employeeReportService){
+        this.employeeReportService = employeeReportService;
         this.authenticationService = authenticationService;
         GridPane gridPane = new GridPane();
         initializeGridPane(gridPane);
@@ -179,7 +188,7 @@ public class AdministratorView {
         VBox vBoxCreate = new VBox(10);
         vBoxCreate.setAlignment(Pos.BOTTOM_LEFT);
         vBoxCreate.getChildren().addAll(usernameHBOX,passHBOX);
-        gridPane.add(vBoxCreate,1,3);
+        gridPane.add(vBoxCreate,1,5);
 
         registerButton = new Button("Register");
         HBox createButtonHBox = new HBox(10);
@@ -212,6 +221,33 @@ public class AdministratorView {
     public Notification<Boolean> addUser(String username, String pass){
        return authenticationService.register(username, pass);
     }
+    public void viewEmployeesActivity() throws IOException {
+        List<EmployeeReport> employeeReports = employeeReportService.findAll();
+        System.out.println(employeeReports);
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page);
+
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+        contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(20,700);
+        contentStream.setLeading(12.5f);
+
+        for(EmployeeReport employeeReport : employeeReports)
+        {
+            contentStream.newLine();
+
+            contentStream.showText( employeeReport.getId().toString() + ". ");
+            contentStream.showText("    " + employeeReport.getDescription());
+        }
+
+        contentStream.close();
+
+        document.save("ViewEmployeesActivity.pdf");
+        document.close();
+    }
 
     public void addUpdateEmployeeButtonListener(EventHandler<ActionEvent> signInButtonListener) {
         updateEmployeeButton.setOnAction(signInButtonListener);
@@ -234,6 +270,9 @@ public class AdministratorView {
     public void addRegisterButtonListener(EventHandler<ActionEvent>singListener)
     {
         registerButton.setOnAction(singListener);
+    }
+    public void addViewEmployeesActivityListener(EventHandler<ActionEvent>singListener){
+        viewEmployeesActivityButton.setOnAction(singListener);
     }
 
 }

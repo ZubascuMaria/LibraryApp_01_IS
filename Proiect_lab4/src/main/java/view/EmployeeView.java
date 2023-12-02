@@ -17,10 +17,17 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Book;
+import model.BookSold;
 import model.builder.BookBuilder;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.w3c.dom.Document;
 import service.book.BookService;
+import service.bookSold.BookSoldService;
 
-import javax.swing.text.Document;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -43,9 +50,11 @@ public class EmployeeView {
 
     private final BookService bookService;
 
+    private final BookSoldService bookSoldService;
     Stage stage;
 
-    public EmployeeView(Stage primaryStage, BookService bookService) {
+    public EmployeeView(Stage primaryStage, BookService bookService, BookSoldService bookSoldService) {
+        this.bookSoldService = bookSoldService;
         this.bookService = bookService;
         primaryStage.setTitle("Book Store");
         this.stage = primaryStage;
@@ -93,7 +102,7 @@ public class EmployeeView {
         deleteBookButton = new Button("Delete Book");
         ButtonHBox.getChildren().add(deleteBookButton);
 
-        viewBookSoldsButton = new Button("Sell Book");
+        viewBookSoldsButton = new Button("Generate Report");
         ButtonHBox.getChildren().add(viewBookSoldsButton);
         gridPane.add(ButtonHBox, 1, 1);
 
@@ -190,6 +199,10 @@ public class EmployeeView {
         }
 
     }
+    public String getTitle()
+    {
+        return titleTextField.getText();
+    }
 
     public void showForCreateBook(Boolean k)
     {
@@ -217,7 +230,7 @@ public class EmployeeView {
         gridPane.add(hBox,1,3);
         hBox.setVisible(false);
         delete = new Button("Delete");
-        gridPane.add(delete, 1, 4);
+        gridPane.add(delete, 2, 5);
         delete.setVisible(false);
         deleteSuccesful = new Label("Delete with Succes!");
         deleteSuccesful.setVisible(false);
@@ -281,6 +294,37 @@ public class EmployeeView {
             error.setVisible(true);
         }
     }
+    public void viewReport() throws IOException {
+        List<BookSold> bookSolds = bookSoldService.findAll();
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page);
+
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+        contentStream.setFont(PDType1Font.COURIER, 12);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(20,700);
+        contentStream.setLeading(14.5f);
+
+        //contentStream.close();
+        for(BookSold bookSold : bookSolds)
+        {
+            //contentStream.beginText();
+            contentStream.newLine();
+
+            contentStream.showText("ID: " + bookSold.getId().toString());
+            contentStream.showText("        Book ID: " + bookSold.getBookID());
+            contentStream.showText("        Title: " + bookSold.getTitle());
+            contentStream.showText("        Quantity: " + bookSold.getQuantity());
+            // contentStream.close();
+        }
+
+        contentStream.close();
+
+        document.save("ReportOfAllTheBooksSold.pdf");
+        document.close();
+    }
 
     public void deleteBook(Long id)
     {
@@ -292,7 +336,7 @@ public class EmployeeView {
     {
         return (Book) listView.getSelectionModel().getSelectedItem();
     }
-    private Book getBookfromListViewUpdate()
+    public Book getBookfromListViewUpdate()
     {
         return (Book) listViewUpdate.getSelectionModel().getSelectedItem();
     }

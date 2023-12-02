@@ -11,6 +11,7 @@ import repository.book.BookRepository;
 import service.book.BookService;
 import service.book.BookServiceImpl;
 import service.bookSold.BookSoldService;
+import service.employeeReport.EmployeeReportService;
 import service.user.AuthenticationService;
 import view.AdministratorView;
 import view.CustomerView;
@@ -28,9 +29,11 @@ public class LoginController {
     private final AuthenticationService authenticationService;
     private final BookService bookService;
     private final BookSoldService bookSoldService;
+    private final EmployeeReportService employeeReportService;
 
 
-    public LoginController(LoginView loginView, AuthenticationService authenticationService, BookService bookService, BookSoldService bookSoldService) {
+    public LoginController(LoginView loginView, AuthenticationService authenticationService, BookService bookService, BookSoldService bookSoldService, EmployeeReportService employeeReportService) {
+        this.employeeReportService = employeeReportService;
         this.loginView = loginView;
         this.bookSoldService = bookSoldService;
         this.authenticationService = authenticationService;
@@ -57,9 +60,9 @@ public class LoginController {
                 String role = roles.get(0).getRole();
                 System.out.println(role);
                 switch (role){
-                    case ADMINISTRATOR : AdministratorController administratorController = new AdministratorController(new AdministratorView(loginView.getStage(),authenticationService));
+                    case ADMINISTRATOR : AdministratorController administratorController = new AdministratorController(new AdministratorView(loginView.getStage(),authenticationService,employeeReportService));
                                     break;
-                    case EMPLOYEE : EmployeeController employeeController = new EmployeeController(new EmployeeView(loginView.getStage(),bookService));
+                    case EMPLOYEE : EmployeeController employeeController = new EmployeeController(new EmployeeView(loginView.getStage(),bookService,bookSoldService), employeeReportService,user);
                                     break;
                     case CUSTOMER : CustomerController controller = new CustomerController(new CustomerView(loginView.getStage(),bookService), bookSoldService);
                                     break;

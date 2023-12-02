@@ -1,12 +1,6 @@
 package database;
 
-import static database.Constants.Tables.BOOK;
-import static database.Constants.Tables.RIGHT;
-import static database.Constants.Tables.ROLE;
-import static database.Constants.Tables.ROLE_RIGHT;
-import static database.Constants.Tables.USER;
-import static database.Constants.Tables.USER_ROLE;
-import static database.Constants.Tables.BOOK_SOLDS;
+import static database.Constants.Tables.*;
 
 public class SQLTableCreationFactory {
 
@@ -59,7 +53,7 @@ public class SQLTableCreationFactory {
                     "    REFERENCES `right` (id)" +
                     "    ON DELETE CASCADE" +
                     "    ON UPDATE CASCADE);";
-            case USER_ROLE -> "\tCREATE TABLE IF NOT EXISTS user_role (" +
+            case USER_ROLE -> "CREATE TABLE IF NOT EXISTS user_role (" +
                     "  id INT NOT NULL AUTO_INCREMENT," +
                     "  user_id INT NOT NULL," +
                     "  role_id INT NOT NULL," +
@@ -86,6 +80,10 @@ public class SQLTableCreationFactory {
                     "FOREIGN KEY (bookID)" +
                     "REFERENCES book (id)" +
                     "ON DELETE CASCADE);";
+            case EMPLOYEE_REPORT -> "\tCREATE TABLE IF NOT EXISTS employee_report (" +
+                    "id int (11) NOT NULL AUTO_INCREMENT, " +
+                    "description varchar(500) NOT NULL, " +
+                    "PRIMARY KEY (id));";
 
             default -> "";
         };

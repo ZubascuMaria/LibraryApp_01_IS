@@ -7,6 +7,8 @@ import model.User;
 import model.validator.Notification;
 import view.AdministratorView;
 
+import java.io.IOException;
+
 public class AdministratorController {
     private final AdministratorView administratorView;
 
@@ -19,6 +21,7 @@ public class AdministratorController {
         this.administratorView.addDeleteButtonListener(new deleteButtonListener());
         this.administratorView.addCreateUserButtonListener(new CreateUserButtonListener());
         this.administratorView.addRegisterButtonListener(new RegisterButtonListener());
+        this.administratorView.addViewEmployeesActivityListener(new ViewEmployeesActivityButtonListener());
     }
 
     private class updateEmployeeButtonListener implements EventHandler<ActionEvent>{
@@ -84,6 +87,17 @@ public class AdministratorController {
             Notification<Boolean> registerNotification = administratorView.addUser(username,pass);
             if (!registerNotification.hasErrors())
                 administratorView.isShowUpdateSucc(true);
+        }
+    }
+    private class ViewEmployeesActivityButtonListener implements EventHandler<ActionEvent>{
+
+        @Override
+        public void handle(ActionEvent event) {
+            try {
+                administratorView.viewEmployeesActivity();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
